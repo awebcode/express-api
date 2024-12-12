@@ -2,7 +2,7 @@ import express from "express";
 import userRoutes from "./user/user.routes";
 const baseRoutes = express.Router();
 
-baseRoutes.use("/", userRoutes);
+baseRoutes.use("/user", userRoutes);
 
 
 
