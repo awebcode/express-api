@@ -1,17 +1,29 @@
 import type { Request, Response } from "express";
+import prisma from "../../config/prisma.config";
 
-export const getUser = (req: Request, res: Response) => {
-  res.json({ msg: "Users Fetched Successfully" });
+const getUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany()
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Server Error" });
+  }
 };
 
-export const createUser = (req: Request, res: Response) => {
-  console.log({ reqBody: req.body });
-  res.status(201).json({ msg: "User Created Successfully", data: req.body });
+const createUser = async (req: Request, res: Response) => {
+  try {
+    const user = await prisma.user.create({
+      data: {
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+      },
+    });
+    res.status(201).json(user);
+  } catch (error) {
+    console.log({ error });
+    res.status(500).json({ error: "Server Error" });
+  }
 };
 
-export const updateUser = (req: Request, res: Response) => {
-  console.log({ reqBody: req.body });
-  res
-    .status(201)
-    .json({ success: true, msg: "User Updated Successfully", data: req.body });
-};
+export { getUsers, createUser };
