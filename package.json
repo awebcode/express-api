@@ -6,7 +6,9 @@
     "start": "bun run --watch index.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bcrypt": "^5.0.2",
+    "@types/bun": "latest",
+    "@types/jsonwebtoken": "^9.0.7"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -14,7 +16,10 @@
   "dependencies": {
     "@prisma/client": "6.0.1",
     "@types/express": "^5.0.0",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.4",
     "prisma": "^6.0.1"
   }
