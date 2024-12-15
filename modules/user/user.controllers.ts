@@ -1,8 +1,10 @@
 import type { Request, Response } from "express";
 import prisma from "../../config/prisma.config";
 import bcrypt from "bcrypt";
+import jsonwebToken from "jsonwebtoken";
 const getUsers = async (req: Request, res: Response) => {
   try {
+    console.log({user: req.user});
     const users = await prisma.user.findMany();
     res.status(200).json(users);
   } catch (error) {
@@ -69,6 +71,21 @@ const loginUser = async (req: Request, res: Response): Promise<any> => {
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Invalid password" });
     }
+    const token = await jsonwebToken.sign(
+      {
+        id: user.id,
+      },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "1d",
+      }
+    );
+    res.cookie("auth_token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24,
+    });
 
     res.status(200).json({
       message: "User logged in successfully",
@@ -80,5 +97,8 @@ const loginUser = async (req: Request, res: Response): Promise<any> => {
     res.status(500).json({ error: "Server Error" });
   }
 };
+
+
+
 
 export { getUsers, createUser, loginUser };

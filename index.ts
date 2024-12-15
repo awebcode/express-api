@@ -1,11 +1,19 @@
 import express from "express";
 // import { connectDB } from "./config/db.config";
 import baseRouter from "./modules/base.routes";
-
+import cookieParser from "cookie-parser";
+import cors from "cors";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  })
+);
+app.use(cookieParser());
 
 // connectDB();
 
