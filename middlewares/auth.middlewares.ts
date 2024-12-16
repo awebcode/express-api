@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
-export const auth = async (
+import { AppError } from "./errors.middlewares";
+export const isAuth = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -8,16 +9,16 @@ export const auth = async (
   try {
     const token = req.cookies["auth_token"];
     if (!token) {
-      return res.status(401).json({ error: "Unauthorized" });
+      throw new AppError("UnAuthorized", 401);
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
     if (!decoded?.id) {
-      return res.status(401).json({ error: "Unauthorized" });
+      throw new AppError("UnAuthorized", 401);
     }
-    req.user = { id: decoded.id };
+    req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ error: "Unauthorized" });
+    next(error);
   }
 };
