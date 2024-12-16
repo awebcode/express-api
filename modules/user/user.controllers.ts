@@ -1,32 +1,35 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import prisma from "../../config/prisma.config";
 import bcrypt from "bcrypt";
 import jsonwebToken from "jsonwebtoken";
-const getUsers = async (req: Request, res: Response) => {
+import { AppError } from "../../middlewares/errors.middlewares";
+const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log({ user: req.user });
     const users = await prisma.user.findMany();
+    if (!users) {
+      throw new AppError("Users not found", 404);
+    }
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ error: "Server Error" });
+    next(error);
   }
 };
 
-const createUser = async (req: Request, res: Response): Promise<any> => {
+const createUser = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const { email, password, name } = req.body;
 
     if (!email || !password || !name) {
-      return res.status(400).json({ error: "All fields are required" });
+      throw new AppError("All fields are required", 400);
     }
-    const emailExists = await prisma.user.findUnique({
+    const isEmailExists = await prisma.user.findUnique({
       where: {
         email,
       },
     });
 
-    if (emailExists) {
-      return res.status(400).json({ error: "Email already exists" });
+    if (isEmailExists) {
+      throw new AppError("Email already exists", 400);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -44,8 +47,7 @@ const createUser = async (req: Request, res: Response): Promise<any> => {
       success: true,
     });
   } catch (error) {
-    console.log({ error });
-    res.status(500).json({ error: "Server Error" });
+    next(error);
   }
 };
 
