@@ -3,6 +3,7 @@ import prisma from "../../config/prisma.config";
 import bcrypt from "bcrypt";
 import jsonwebToken from "jsonwebtoken";
 import { AppError } from "../../middlewares/errors.middlewares";
+import * as userService from "./user.services";
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await prisma.user.findMany();
@@ -15,32 +16,13 @@ const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const createUser = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+const createUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
   try {
-    const { email, password, name } = req.body;
-
-    if (!email || !password || !name) {
-      throw new AppError("All fields are required", 400);
-    }
-    const isEmailExists = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    if (isEmailExists) {
-      throw new AppError("Email already exists", 400);
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-      },
-    });
-
+   const user=await userService.createUserService(req);
     res.status(201).json({
       message: "User created successfully",
       user,
