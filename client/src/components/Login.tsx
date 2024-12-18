@@ -18,6 +18,7 @@ const Login = () => {
     e.preventDefault();
     mutate(formData);
     queryClient.invalidateQueries({ queryKey: ["auth"] });
+    navigate("/profile");
   };
   const navigate = useNavigate();
   const { user } = useUserStore();

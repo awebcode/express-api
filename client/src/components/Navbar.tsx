@@ -17,7 +17,7 @@ const Navbar = () => {
   // Logout handler
   const handleLogout = async () => {
     await logout();
-    queryClient.invalidateQueries({ queryKey: ["auth"], refetchActive: true });
+    queryClient.invalidateQueries({ queryKey: ["auth"] });
 
     clearUser(); // Clear user from Zustand
     navigate("/login"); // Redirect to login page
@@ -58,11 +58,13 @@ const Navbar = () => {
 
           {user ? (
             <>
-              <li>
-                <Link to="/dashboard" className="hover:text-gray-300 block px-2 py-1">
-                  Dashboard
-                </Link>
-              </li>
+              {user.role === "Admin" && (
+                <li>
+                  <Link to="/dashboard" className="hover:text-gray-300 block px-2 py-1">
+                    Dashboard
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link to="/profile" className="hover:text-gray-300 block px-2 py-1">
                   Profile

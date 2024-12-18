@@ -10,5 +10,6 @@ export const useRegisterMutation = () => {
   return useMutation({
     mutationKey: ["auth"],
     mutationFn: registerUser,
+   
   });
 };

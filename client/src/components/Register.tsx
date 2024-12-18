@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useRegisterMutation } from "@/hooks/useRegisterMutation";
 import { useNavigate } from "react-router-dom";
 import useUserStore from "@/hooks/useUser";
-import { useQueryClient } from "@tanstack/react-query";
 
 const Register = () => {
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const { mutate, isPending, isError, error, isSuccess } = useRegisterMutation();
- const queryClient = useQueryClient();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,15 +16,19 @@ const Register = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     mutate(formData);
-    queryClient.invalidateQueries({ queryKey: ["auth"] });
   };
-    const navigate = useNavigate();
-    const { user } = useUserStore();
-    useEffect(() => {
-      if (user) {
-        navigate("/profile");
-      }
-    }, [user, navigate]);
+  const navigate = useNavigate();
+  const { user } = useUserStore();
+  useEffect(() => {
+    if (user) {
+      navigate("/profile");
+    }
+    if (isSuccess) {
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    }
+  }, [user, navigate, isSuccess]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
