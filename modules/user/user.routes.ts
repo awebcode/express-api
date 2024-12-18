@@ -1,4 +1,4 @@
-import { isAdmin } from "./../../middlewares/auth.middlewares";
+import { isPermitted } from "./../../middlewares/auth.middlewares";
 import express, { Router } from "express";
 
 const userRouter: Router = express.Router();
@@ -45,7 +45,7 @@ routes.forEach((route) => {
   if (route.protected && !route.isAdmin) {
     userRouter[route.method](route.path, isAuth, route.handler);
   } else if (route.isAdmin) {
-    userRouter[route.method](route.path, isAuth, isAdmin([Role.Admin]), route.handler);
+    userRouter[route.method](route.path, isAuth, isPermitted([Role.Admin]), route.handler);
   } else {
     userRouter[route.method](route.path, route.handler);
   }

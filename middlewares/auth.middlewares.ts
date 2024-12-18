@@ -29,7 +29,7 @@ export const isAuth = async (
   }
 };
 
-export const isAdmin = (roles: Role[]) => {
+export const isPermitted = (roles: Role[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!roles.includes(req.user.role)) {
       throw new AppError("This route is only for specific role", 401);

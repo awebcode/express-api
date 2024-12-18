@@ -2,31 +2,23 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider = "mongodb"
   url      = env("DB_URL")
 }
 
-
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   email     String   @unique
-  password  String   
-  role Role @default(User)
+  password  String
+  role      Role     @default(User)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model Product {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  title      String
 }
 
 enum Role {
   User
   Admin
   Editor
-
 }

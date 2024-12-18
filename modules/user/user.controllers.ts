@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jsonwebToken from "jsonwebtoken";
 import { AppError } from "../../middlewares/errors.middlewares";
 import * as userService from "./user.services";
+import { changeUserRoleDTO } from "./user.dtos";
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await prisma.user.findMany();
@@ -119,11 +120,8 @@ const getProfile = async (req: Request, res: Response): Promise<any> => {
 
 const changeUserRole = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    const userId = req.user.id;
-    const { role } = req.body;
-    if (!role) {
-      throw new AppError("Role is required", 400);
-    }
+    const { role, userId } = changeUserRoleDTO.parse(req.body);
+    
     const user = await prisma.user.update({
       where: {
         id: userId,

@@ -1,3 +1,4 @@
+import { Role } from "@prisma/client";
 import { z } from "zod";
 
 // Zod schema for createUser
@@ -11,4 +12,9 @@ export const createUserDTO = z.object({
     .string()
     .min(3, { message: "Name is required" })
     .max(25, { message: "Name must not exceed 100 characters" }),
+});
+
+export const changeUserRoleDTO = z.object({
+  userId: z.string(),
+  role: z.nativeEnum(Role),
 });
