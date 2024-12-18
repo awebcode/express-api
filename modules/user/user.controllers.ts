@@ -58,6 +58,7 @@ const loginUser = async (req: Request, res: Response): Promise<any> => {
     const token = await jsonwebToken.sign(
       {
         id: user.id,
+        role: user.role,
       },
       process.env.JWT_SECRET!,
       {
@@ -116,4 +117,29 @@ const getProfile = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-export { getUsers, createUser, loginUser, logoutUser, getProfile };
+const changeUserRole = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const userId = req.user.id;
+    const { role } = req.body;
+    if (!role) {
+      throw new AppError("Role is required", 400);
+    }
+    const user = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        role: role,
+      },
+    });
+    
+    res.status(200).json({
+      message: "User role updated successfully",
+      user,
+      success: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export { getUsers, createUser, loginUser, logoutUser, getProfile, changeUserRole };
