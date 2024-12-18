@@ -13,7 +13,8 @@ export const createUserDTO = z.object({
     .min(3, { message: "Name is required" })
     .max(25, { message: "Name must not exceed 100 characters" }),
 });
-
+export const loginUserDTO = createUserDTO.omit({ name: true });
+export const updateUserDTO = createUserDTO.partial();
 export const changeUserRoleDTO = z.object({
   userId: z.string(),
   role: z.nativeEnum(Role),

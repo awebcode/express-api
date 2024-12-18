@@ -1,13 +1,9 @@
-import type { NextFunction, Request, Response } from "express";
-import prisma from "../../config/prisma.config";
-import bcrypt from "bcrypt";
-import jsonwebToken from "jsonwebtoken";
+import type { RequestHandler } from "express";
 import { AppError } from "../../middlewares/errors.middlewares";
 import * as userService from "./user.services";
-import { changeUserRoleDTO } from "./user.dtos";
-const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+const getUsers: RequestHandler = async (req, res, next) => {
   try {
-    const users = await prisma.user.findMany();
+    const users = await userService.getAllUsers();
     if (!users) {
       throw new AppError("Users not found", 404);
     }
@@ -17,13 +13,9 @@ const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const createUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<any> => {
+const createUser: RequestHandler = async (req, res, next) => {
   try {
-   const user=await userService.createUserService(req);
+    const user = await userService.createUserService(req);
     res.status(201).json({
       message: "User created successfully",
       user,
@@ -34,38 +26,9 @@ const createUser = async (
   }
 };
 
-const loginUser = async (req: Request, res: Response): Promise<any> => {
+const loginUser: RequestHandler = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    if (!user) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: "Invalid password" });
-    }
-    const token = await jsonwebToken.sign(
-      {
-        id: user.id,
-        role: user.role,
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1d",
-      }
-    );
+    const { user, token } = await userService.login(req);
     res.cookie("auth_token", token, {
       httpOnly: true,
       secure: true,
@@ -79,12 +42,11 @@ const loginUser = async (req: Request, res: Response): Promise<any> => {
       success: true,
     });
   } catch (error) {
-    console.log({ error });
-    res.status(500).json({ error: "Server Error" });
+    next(error);
   }
 };
 
-const logoutUser = async (req: Request, res: Response): Promise<any> => {
+const logoutUser: RequestHandler = async (req, res, next) => {
   try {
     res.clearCookie("auth_token");
     res.status(200).json({
@@ -92,20 +54,13 @@ const logoutUser = async (req: Request, res: Response): Promise<any> => {
       success: true,
     });
   } catch (error) {
-    console.log({ error });
-    res.status(500).json({ error: "Server Error" });
+    next(error);
   }
 };
 
-const getProfile = async (req: Request, res: Response): Promise<any> => {
+const getProfile: RequestHandler = async (req, res, next) => {
   try {
-    const userId = req.user.id;
-
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+    const user = await userService.getProfile(req);
 
     res.status(200).json({
       message: "User profile fetched successfully",
@@ -113,24 +68,13 @@ const getProfile = async (req: Request, res: Response): Promise<any> => {
       success: true,
     });
   } catch (error) {
-    console.log({ error });
-    res.status(500).json({ error: "Server Error" });
+    next(error);
   }
 };
 
-const changeUserRole = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+const changeUserRole: RequestHandler = async (req, res, next) => {
   try {
-    const { role, userId } = changeUserRoleDTO.parse(req.body);
-    
-    const user = await prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        role: role,
-      },
-    });
-    
+    const user = await userService.changeUserRole(req);
     res.status(200).json({
       message: "User role updated successfully",
       user,
