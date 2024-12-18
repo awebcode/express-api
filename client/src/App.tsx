@@ -12,16 +12,13 @@ import { useEffect } from "react";
 import axiosInstance from "./hooks/axiosInstance";
 function App() {
   const setUser = useUserStore((state) => state.setUser);
-  const fetchUserProfile = async () => {
-    const response = await axiosInstance.get("/user/profile", {
-      withCredentials: true,
-    });
-    return response.data.user;
-  };
+  
 
   const { data: user } = useQuery({
     queryKey: ["auth"],
-    queryFn: fetchUserProfile,
+    queryFn: async () => {
+      return (await axiosInstance.get("/user/profile")).data.user;
+    },
   });
   useEffect(() => {
     if (user) {
