@@ -21,7 +21,7 @@ export const isAuth = async (
     if (!decoded?.id) {
       throw new AppError("UnAuthorized", 401);
     }
-   
+
     req.user = decoded;
     next();
   } catch (error) {
@@ -29,7 +29,7 @@ export const isAuth = async (
   }
 };
 
-export const isPermitted = (roles: Role[]) => {
+export const hasRolePermission = (roles: Role[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!roles.includes(req.user.role)) {
       throw new AppError("This route is only for specific role", 401);

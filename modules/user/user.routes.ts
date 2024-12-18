@@ -1,10 +1,10 @@
 import express from "express";
 import * as UserCtrl from "./user.controllers";
-import { isAuth, isPermitted } from "../../middlewares/auth.middlewares";
+import { isAuth, hasRolePermission } from "../../middlewares/auth.middlewares";
 import { Role } from "@prisma/client";
 import type { RouteDefinition } from "../../types/index.types";
 
-const userRouter= express.Router();
+const userRouter = express.Router();
 
 // Define routes and their middleware requirements
 const routes: RouteDefinition[] = [
@@ -35,7 +35,7 @@ routes.forEach(({ path, method, handler, protected: isProtected, isAdmin }) => {
   if (isProtected) {
     middlewares.push(isAuth);
     if (isAdmin) {
-      middlewares.push(isPermitted([Role.Admin]));
+      middlewares.push(hasRolePermission([Role.Admin]));
     }
   }
 
